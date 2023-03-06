@@ -13,7 +13,7 @@ namespace Bysxiang.UipathExcelEx.utils
         /// </summary>
         /// <param name="colNum"></param>
         /// <returns></returns>
-        public static string ToColumnName(long colNum)
+        public static string ToColumnName(int colNum)
         {
             StringBuilder retVal = new StringBuilder();
             int x = 0;
@@ -30,11 +30,11 @@ namespace Bysxiang.UipathExcelEx.utils
             return retVal.ToString();
         }
 
-        public static long ToColumnNum(string colName)
+        public static int ToColumnNum(string colName)
         {
             char[] chars = colName.ToUpper().ToCharArray();
 
-            return (long)(Math.Pow(26, chars.Count() - 1)) *
+            return (int)(Math.Pow(26, chars.Count() - 1)) *
                 (Convert.ToInt32(chars[0]) - 64) +
                 ((chars.Count() > 2) ? ToColumnNum(colName.Substring(1, colName.Length - 1)) :
                 ((chars.Count() == 2) ? (Convert.ToInt32(chars[chars.Count() - 1]) - 64) : 0));
