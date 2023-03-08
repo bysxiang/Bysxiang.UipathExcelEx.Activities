@@ -1,4 +1,5 @@
 ﻿using Bysxiang.UipathExcelEx.utils;
+using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,6 +40,16 @@ namespace Bysxiang.UipathExcelEx.models
             {
                 return string.Format("{0}{1}:{2}{3}", ColumnName, Row, EndColumnName, Row + RowCount - 1);
             }
+        }
+
+        public ExcelSizeInfo() { }
+
+        public ExcelSizeInfo(Range range)
+        {
+            Row = range.Row;
+            Column = range.Column;
+            RowCount = range.Rows.Count;
+            ColumnCount = range.Columns.Count;
         }
     }
 }
