@@ -10,10 +10,18 @@ using UiPath.Excel.Activities;
 
 namespace Bysxiang.UipathExcelEx.Activities
 {
-    public abstract class ExcelExInteropActivity<T> : ExcelInteropActivity<T>
+    public abstract class ExcelExInteropActivity<T> : AsyncCodeActivity
     {
-        protected ExcelExInteropActivity() :base()
+        protected bool CreateNew;
+
+        [LocalizedCategory("Input")]
+        [LocalizedDisplayName("SheetNameDisplayName")]
+        [RequiredArgument]
+        public InArgument<string> SheetName { get; set; } = "Sheet1";
+
+        protected ExcelExInteropActivity()
         {
+            this.Constraints.Add(CheckParentConstraint.GetCheckParentConstraint<ExcelExInteropActivity<T>>(typeof(ExcelApplicationScope).Name));
         }
 
         // 以下代码从Uipath.Excel.Activities中复制，用以兼容不通的版本
@@ -49,6 +57,32 @@ namespace Bysxiang.UipathExcelEx.Activities
             return tacs.Task;
         }
 
-        protected abstract Task<T> ExecuteAsyncTask(AsyncCodeActivityContext context, Workbook workbook);
+        protected override void EndExecute(AsyncCodeActivityContext context, IAsyncResult result)
+        {
+            Task<T> task = result as Task<T>;
+            if (task.IsFaulted)
+                throw task.Exception.InnerException;
+            if (!task.IsCanceled)
+            {
+                if (!context.IsCancellationRequested)
+                {
+                    try
+                    {
+                        this.SetResult(context, task.Result);
+                        return;
+                    }
+                    catch
+                    {
+                        context.MarkCanceled();
+                        return;
+                    }
+                }
+            }
+            context.MarkCanceled();
+        }
+
+        protected abstract Task<T> ExecuteAsync(AsyncCodeActivityContext context, WorkbookApplication workbook);
+
+        protected abstract void SetResult(AsyncCodeActivityContext context, T result);
     }
 }
